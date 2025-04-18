@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     SERVER_HOST: str = "127.0.0.1"
     SERVER_PORT: int = 80
 
+    DATABASE_URL: str = "sqlite:///ingestor.db"
+
     DEBUG: bool = False
 
 
