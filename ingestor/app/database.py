@@ -4,7 +4,7 @@ from typing import Annotated, Generator
 from fastapi import Depends
 from sqlmodel import create_engine, SQLModel, Session
 
-from app.config.settings import get_settings
+from app.settings import get_settings
 import app.models as _ # necessário, registra os modelos do BD
 
 _SETTINGS = get_settings()

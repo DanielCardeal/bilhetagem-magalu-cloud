@@ -4,7 +4,7 @@ import uvicorn
 
 from fastapi import FastAPI
 
-from app.config.settings import get_settings
+from app.settings import get_settings
 from app.models import Pulse, PulseCreate
 from app.database import DatabaseSession, init_db
 
