@@ -2,11 +2,21 @@ services:
   ingestor:
     build:
       context: .
-      dockerfile: ./ingestor/Dockerfile 
+      dockerfile: ./ingestor/Dockerfile
+    environment:
+      - DEBUG=${DEBUG}
+      - PROJECT_NAME=${INGESTOR_PROJECT_NAME}
+      - VERSION=${INGESTOR_VERSION}
+      - SERVER_PORT=${INGESTOR_SERVER_PORT}
+      - SERVER_HOST=${INGESTOR_SERVER_HOST}
+      - DATABASE_URL=${INGESTOR_SQLITE_URL}
     ports:
-      - "8000:80"
+      - "${INGESTOR_SERVER_LOCAL_PORT}:${INGESTOR_SERVER_PORT}"
     develop:
       watch:
         - action: sync+restart
           path: ./ingestor/app
+          target: /code/app
+        - action: sync+restart
+          path: ./.env
           target: /code/app

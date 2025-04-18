@@ -1,11 +1,21 @@
+import uvicorn
+
 from fastapi import FastAPI
 
-app = FastAPI()
+from .config.settings import get_settings 
+from .models.schemas import PulseModel
 
-contagem = 0
+settings = get_settings()
 
-@app.get("/pulso")
-async def on_pulse():
-    global contagem
-    contagem += 1
-    return f"Contagem de pulsos: {contagem}"
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+)
+
+@app.post("/pulse/")
+async def create_pulse(pulse: PulseModel):
+    return get_settings()
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host=settings.SERVER_HOST, port=settings.SERVER_PORT)

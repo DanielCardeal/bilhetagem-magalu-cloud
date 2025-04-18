@@ -10,5 +10,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./ingestor/app /code/app
 
-
-CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+CMD ["python3", "-m", "app.main"]
