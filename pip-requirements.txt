@@ -1,0 +1,2 @@
+# Fixa versão do PIP usado por todos os subprojetos
+pip==25.0.1

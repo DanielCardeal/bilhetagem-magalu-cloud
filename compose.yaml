@@ -1,0 +1,12 @@
+services:
+  ingestor:
+    build:
+      context: .
+      dockerfile: ./ingestor/Dockerfile 
+    ports:
+      - "8000:80"
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./ingestor/app
+          target: /code/app
