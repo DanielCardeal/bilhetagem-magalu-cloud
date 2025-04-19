@@ -1,27 +1,33 @@
-from typing import Sequence
-from sqlmodel import select
+import logging
+from typing import Annotated, Sequence
+from sqlmodel import select, Session
 import uvicorn
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
+from app.aggregator import PulseAggregator, pandas_pulse_aggregator
 
-from app.settings import get_settings
-from app.models import Pulse, PulseCreate
-from app.database import DatabaseSession, init_db
+from app.settings import Settings
+from app.models import Pulse, PulseAggregate, PulseCreate
+from app.database import DBSessionManager
 
-settings = get_settings()
+
+SETTINGS = Settings()
+LOG = logging.getLogger(__name__)
+
+DatabaseSessionDependency = Annotated[Session, Depends(DBSessionManager.generate_db_session)]
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION,
+    title=SETTINGS.PROJECT_NAME,
+    version=SETTINGS.VERSION,
 )
 
 @app.on_event("startup")
 def on_startup():
-    init_db()
+    DBSessionManager.init_db()
 
 
 @app.post("/pulse/")
-async def create_pulse(session: DatabaseSession, pulse_in: PulseCreate) -> Pulse:
+async def create_pulse(session: DatabaseSessionDependency, pulse_in: PulseCreate) -> Pulse:
     db_pulse = Pulse.model_validate(pulse_in)
     session.add(db_pulse)
     session.commit()
@@ -29,10 +35,19 @@ async def create_pulse(session: DatabaseSession, pulse_in: PulseCreate) -> Pulse
     return db_pulse
 
 
-@app.get("/pulse/")
-async def get_pulses(session: DatabaseSession) -> Sequence[Pulse]:
+@app.get("/pulse")
+async def get_aggregates(
+        session: DatabaseSessionDependency,
+        aggregator: PulseAggregator = pandas_pulse_aggregator
+) -> Sequence[PulseAggregate]:
     pulses = session.exec(select(Pulse)).all()
-    return pulses
+    return list(aggregator(pulses))
+
+def app_start() -> None:
+    LOG.info(f"Inicializando serviço {SETTINGS.PROJECT_NAME}")
+    LOG.info(uvicorn.Config.asgi_version)
+    DBSessionManager(SETTINGS)
+    uvicorn.run(app, host=SETTINGS.SERVER_HOST, port=SETTINGS.SERVER_PORT)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=settings.SERVER_HOST, port=settings.SERVER_PORT)
+    app_start()
