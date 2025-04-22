@@ -14,11 +14,9 @@ Em resumo, a combinação dos princípios SOLID e do design funcional oferece um
 
 ## Ingestor
 
-O sistema ingestor recebe um volume imenso de dados
-
 ## API privada
 
-### POST /api/v1/{tenant}/{product_sku}
+### POST /pulse
 
 **Descrição:** Registra um novo pulso de consumo de um determinado tenant/produto.
 **Autenticação:** API key
@@ -26,15 +24,16 @@ O sistema ingestor recebe um volume imenso de dados
 
 ```json
 {
-  "used_amount": 50,
-  "use_unity": "GB x seg",
-  "api_key": "..."
+    "tenant": "tenant1",
+    "product_sku": "service-xyz",
+    "use_unity": "Gb/h",
+    "used_amount": 3
 }
 ```
 
 **Observações:**
 
-- O ingestor não valida as informações de uso informadas no pulso, só as registra.
+- O ingestor não valida informações sobre as permissões de uso do tenant sobre o produto.
 
 # Processador e armazenador (P&A)
 
